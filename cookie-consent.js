@@ -1,20 +1,16 @@
-```js
 (() => {
   "use strict";
 
   const STORAGE_KEY = "tpw_cookie_consent";
   const GTM_ID = "GTM-56HZ6KWC";
 
-  function setGoogleConsent(status) {
+  function gtag() {
     window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push(arguments);
+  }
 
-    function gtag() {
-      window.dataLayer.push(arguments);
-    }
-
-    window.gtag = gtag;
-
-    const value = status ? "granted" : "denied";
+  function setGoogleConsent(accepted) {
+    const value = accepted ? "granted" : "denied";
 
     gtag("consent", "update", {
       ad_storage: value,
@@ -48,25 +44,14 @@
     document.head.appendChild(script);
   }
 
-  function applyConsent(status) {
-    window.dataLayer = window.dataLayer || [];
+  function applyConsent(accepted) {
+    setGoogleConsent(accepted);
 
-    function gtag() {
-      window.dataLayer.push(arguments);
-    }
-
-    window.gtag = gtag;
-
-    const value = status ? "granted" : "denied";
-
-    gtag("consent", "update", {
-      ad_storage: value,
-      analytics_storage: value,
-      ad_user_data: value,
-      ad_personalization: value
-    });
-
-    if (status) {
+    /*
+     * GTM et les balises Google ne sont chargés
+     * qu'après acceptation.
+     */
+    if (accepted) {
       loadGTM();
     }
   }
@@ -88,6 +73,7 @@
       <div class="cookie-consent-box">
 
         <div class="cookie-consent-text">
+
           <strong>🍪 Cookies et confidentialité</strong>
 
           <p>
@@ -101,6 +87,7 @@
           <a href="cookies.html">
             En savoir plus
           </a>
+
         </div>
 
         <div class="cookie-consent-buttons">
@@ -157,9 +144,12 @@
     });
   }
 
+  /*
+   * Permet de rouvrir le bandeau depuis un bouton
+   * présent sur cookies.html ou une autre page.
+   */
   window.openCookiePreferences = function () {
     localStorage.removeItem(STORAGE_KEY);
-
     createBanner();
   };
 
@@ -171,17 +161,13 @@
      * aucune mesure d'audience ni publicité
      * avant le choix de l'utilisateur.
      */
-    window.dataLayer.push([
-      "consent",
-      "default",
-      {
-        ad_storage: "denied",
-        analytics_storage: "denied",
-        ad_user_data: "denied",
-        ad_personalization: "denied",
-        wait_for_update: 500
-      }
-    ]);
+    gtag("consent", "default", {
+      ad_storage: "denied",
+      analytics_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+      wait_for_update: 500
+    });
 
     const savedConsent =
       localStorage.getItem(STORAGE_KEY);
@@ -198,7 +184,7 @@
 
     /*
      * Aucun choix enregistré :
-     * on affiche le bandeau.
+     * afficher le bandeau.
      */
     createBanner();
   }
@@ -212,4 +198,3 @@
     initializeCookieConsent();
   }
 })();
-```
