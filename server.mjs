@@ -2259,7 +2259,7 @@ webSocketServer.on("error", (caught) => {
   process.exitCode = 1;
 });
 
-server.listen(port, listenHost, () => {
+server.listen(port, "0.0.0.0" () => {
   console.log(`Tunisie Power Watch: http://${listenHost}:${port}/`);
   console.log(`Base de données: ${join(dataDirectory, "power-watch.db")}`);
   console.log(`Emails: AES-256-GCM actif · clé: ${emailKeyMaterial.source}${migratedEmailCount ? ` · ${migratedEmailCount} compte(s) migré(s)` : ""}`);
