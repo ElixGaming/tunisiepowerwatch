@@ -1690,7 +1690,7 @@ const mimeTypes = new Map([
   [".md", "text/markdown; charset=utf-8"],
 ]);
 
-const publicFiles = new Set(["index.html", "privacy.html", "legal.html", "terms.html", "status.html", "qr-codes.html", "public.html", "styles.css", "app.js", "i18n.js", "pwa.js", "privacy.js", "legal.js", "status.js", "qr-codes.js", "public-dashboard.js", "steg-zones.js", "data/tn-imadas.geojson", "manifest.webmanifest", "sw.js", "vendor/altcha/altcha.js"]);
+const publicFiles = new Set(["index.html", "privacy.html", "cookies.html", "legal.html", "terms.html", "status.html", "qr-codes.html", "public.html", "styles.css", "app.js", "i18n.js", "pwa.js", "privacy.js", "legal.js", "status.js", "qr-codes.js", "public-dashboard.js", "steg-zones.js", "data/tn-imadas.geojson", "manifest.webmanifest", "sw.js", "vendor/altcha/altcha.js"]);
 
 function isPublicFile(relative) {
   const portable = relative.replaceAll("\\", "/");
