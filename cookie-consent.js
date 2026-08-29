@@ -100,6 +100,17 @@
   }
 
   // Affiche le bandeau lorsque le DOM est disponible
+
+window.openCookiePreferences = function () {
+  localStorage.removeItem(STORAGE_KEY);
+
+  const existingBanner = document.getElementById("cookieConsentBanner");
+  if (existingBanner) {
+    existingBanner.remove();
+  }
+
+  showCookieBanner();
+};
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", showCookieBanner);
   } else {
