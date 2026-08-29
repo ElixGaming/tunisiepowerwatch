@@ -3,10 +3,8 @@
 
   const STORAGE_KEY = "tpw_cookie_consent";
 
-  // Met à jour le consentement Google
   function updateGoogleConsent(granted) {
     if (typeof window.gtag !== "function") {
-      console.warn("Google Consent Mode : gtag() n'est pas disponible.");
       return;
     }
 
@@ -20,27 +18,16 @@
     });
   }
 
-  // Vérifie si l'utilisateur a déjà fait un choix
-  const savedConsent = localStorage.getItem(STORAGE_KEY);
-
-  if (savedConsent === "accepted") {
-    updateGoogleConsent(true);
-    return;
-  }
-
-  if (savedConsent === "rejected") {
-    updateGoogleConsent(false);
-    return;
-  }
-
-  // Création du bandeau
   function showCookieBanner() {
-    // Évite de créer plusieurs bandeaux
-    if (document.getElementById("cookieConsentBanner")) {
-      return;
+    // Supprime un ancien bandeau s'il existe
+    const oldBanner = document.getElementById("cookieConsentBanner");
+
+    if (oldBanner) {
+      oldBanner.remove();
     }
 
     const banner = document.createElement("div");
+
     banner.id = "cookieConsentBanner";
 
     banner.innerHTML = `
@@ -62,6 +49,7 @@
         </div>
 
         <div class="cookie-consent-buttons">
+
           <button id="cookieReject" type="button">
             Refuser
           </button>
@@ -69,6 +57,7 @@
           <button id="cookieAccept" type="button">
             Accepter
           </button>
+
         </div>
 
       </div>
@@ -76,8 +65,11 @@
 
     document.body.appendChild(banner);
 
-    // Bouton "Accepter"
-    const acceptButton = document.getElementById("cookieAccept");
+    const acceptButton =
+      document.getElementById("cookieAccept");
+
+    const rejectButton =
+      document.getElementById("cookieReject");
 
     acceptButton.addEventListener("click", () => {
       localStorage.setItem(STORAGE_KEY, "accepted");
@@ -86,9 +78,6 @@
 
       banner.remove();
     });
-
-    // Bouton "Refuser"
-    const rejectButton = document.getElementById("cookieReject");
 
     rejectButton.addEventListener("click", () => {
       localStorage.setItem(STORAGE_KEY, "rejected");
@@ -99,22 +88,53 @@
     });
   }
 
-  // Affiche le bandeau lorsque le DOM est disponible
+  /*
+   * Fonction disponible depuis cookies.html
+   */
+  window.openCookiePreferences = function () {
+    localStorage.removeItem(STORAGE_KEY);
 
-window.openCookiePreferences = function () {
-  localStorage.removeItem(STORAGE_KEY);
+    showCookieBanner();
+  };
 
-  const existingBanner = document.getElementById("cookieConsentBanner");
-  if (existingBanner) {
-    existingBanner.remove();
+  /*
+   * Affichage automatique du bandeau
+   *
+   * Sur cookies.html, on ne l'affiche pas automatiquement :
+   * l'utilisateur peut utiliser le bouton
+   * "Modifier mes préférences".
+   */
+  function initializeCookieConsent() {
+    const currentPage =
+      window.location.pathname.split("/").pop() || "index.html";
+
+    if (currentPage === "cookies.html") {
+      return;
+    }
+
+    const savedConsent =
+      localStorage.getItem(STORAGE_KEY);
+
+    if (savedConsent === "accepted") {
+      updateGoogleConsent(true);
+      return;
+    }
+
+    if (savedConsent === "rejected") {
+      updateGoogleConsent(false);
+      return;
+    }
+
+    showCookieBanner();
   }
 
-  showCookieBanner();
-};
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", showCookieBanner);
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeCookieConsent
+    );
   } else {
-    showCookieBanner();
+    initializeCookieConsent();
   }
 })();
 ```
