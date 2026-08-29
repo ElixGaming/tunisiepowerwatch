@@ -3,34 +3,62 @@
 
   const STORAGE_KEY = "tpw_cookie_consent";
 
-  // Ne rien afficher si un choix a déjà été enregistré.
-  if (localStorage.getItem(STORAGE_KEY)) {
+  // Met à jour le consentement Google
+  function updateGoogleConsent(granted) {
+    if (typeof window.gtag !== "function") {
+      console.warn("Google Consent Mode : gtag() n'est pas disponible.");
+      return;
+    }
+
+    const value = granted ? "granted" : "denied";
+
+    window.gtag("consent", "update", {
+      ad_storage: value,
+      analytics_storage: value,
+      ad_user_data: value,
+      ad_personalization: value
+    });
+  }
+
+  // Vérifie si l'utilisateur a déjà fait un choix
+  const savedConsent = localStorage.getItem(STORAGE_KEY);
+
+  if (savedConsent === "accepted") {
+    updateGoogleConsent(true);
     return;
   }
 
+  if (savedConsent === "rejected") {
+    updateGoogleConsent(false);
+    return;
+  }
+
+  // Création du bandeau
   function showCookieBanner() {
+    // Évite de créer plusieurs bandeaux
     if (document.getElementById("cookieConsentBanner")) {
       return;
     }
 
     const banner = document.createElement("div");
-
     banner.id = "cookieConsentBanner";
 
     banner.innerHTML = `
       <div class="cookie-consent-box">
+
         <div class="cookie-consent-text">
           <strong>🍪 Cookies et confidentialité</strong>
 
           <p>
             Tunisie Power Watch utilise des cookies et le stockage local
-            nécessaires au fonctionnement du service, notamment pour les
-            sessions et la protection anti-abus.
-            Aucun cookie publicitaire ou outil de mesure d’audience
-            n’est actuellement utilisé.
+            nécessaires au fonctionnement du service.
+            Les technologies optionnelles d'analyse et de publicité
+            ne sont activées qu'après votre consentement.
           </p>
 
-          <a href="cookies.html">En savoir plus sur les cookies</a>
+          <a href="cookies.html">
+            En savoir plus
+          </a>
         </div>
 
         <div class="cookie-consent-buttons">
@@ -42,29 +70,40 @@
             Accepter
           </button>
         </div>
+
       </div>
     `;
 
     document.body.appendChild(banner);
 
-    document
-      .getElementById("cookieAccept")
-      .addEventListener("click", () => {
-        localStorage.setItem(STORAGE_KEY, "accepted");
-        banner.remove();
-      });
+    // Bouton "Accepter"
+    const acceptButton = document.getElementById("cookieAccept");
 
-    document
-      .getElementById("cookieReject")
-      .addEventListener("click", () => {
-        localStorage.setItem(STORAGE_KEY, "rejected");
-        banner.remove();
-      });
+    acceptButton.addEventListener("click", () => {
+      localStorage.setItem(STORAGE_KEY, "accepted");
+
+      updateGoogleConsent(true);
+
+      banner.remove();
+    });
+
+    // Bouton "Refuser"
+    const rejectButton = document.getElementById("cookieReject");
+
+    rejectButton.addEventListener("click", () => {
+      localStorage.setItem(STORAGE_KEY, "rejected");
+
+      updateGoogleConsent(false);
+
+      banner.remove();
+    });
   }
 
+  // Affiche le bandeau lorsque le DOM est disponible
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", showCookieBanner);
   } else {
     showCookieBanner();
   }
 })();
+```
