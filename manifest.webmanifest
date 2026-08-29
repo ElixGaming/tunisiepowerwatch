@@ -1,0 +1,20 @@
+{
+  "name": "Tunisie Power Watch",
+  "short_name": "Power Watch",
+  "description": "Carte participative des coupures électriques en Tunisie",
+  "lang": "fr",
+  "dir": "auto",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#eef2f5",
+  "theme_color": "#d71920",
+  "icons": [
+    {
+      "src": "/assets/tn-power-watch.png",
+      "sizes": "1256x1256",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

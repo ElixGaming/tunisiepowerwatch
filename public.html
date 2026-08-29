@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Écrans publics et données participatives de Tunisie Power Watch" />
+    <title>Écrans publics · Tunisie Power Watch</title>
+    <link rel="icon" type="image/png" href="assets/tn-power-watch.png" />
+    <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="styles.css?v=17" />
+  </head>
+  <body class="public-screen-page" data-audience="public">
+    <header class="privacy-header public-page-header">
+      <a class="brand privacy-brand" href="index.html">
+        <img class="brand-logo" src="assets/tn-power-watch.png" alt="Logo Tunisie Power Watch" />
+        <span data-i18n="publicReturnHome">Retour à la carte participative</span>
+      </a>
+      <div class="public-header-actions">
+        <span id="publicConnectionState" class="public-connection-state" aria-live="polite">Connexion…</span>
+        <label class="language-control">
+          <span>Langue</span>
+          <select id="languageSelect" aria-label="Langue">
+            <option value="fr">FR</option>
+            <option value="ar">AR</option>
+          </select>
+        </label>
+      </div>
+    </header>
+
+    <main class="public-dashboard">
+      <section class="public-dashboard-intro">
+        <div>
+          <p class="eyebrow privacy-eyebrow" data-i18n="publicEyebrow">Information citoyenne en temps réel</p>
+          <h1 data-i18n="publicTitle">Écrans publics Tunisie Power Watch</h1>
+          <p class="privacy-lead" data-i18n="publicIntro">Des vues lisibles et réutilisables pour le grand public, les journalistes, les associations et les collectivités.</p>
+        </div>
+        <div class="public-refresh-box">
+          <strong id="publicUpdatedAt">—</strong>
+          <small data-i18n="publicAutoRefresh">Actualisation automatique toutes les 30 secondes.</small>
+          <button id="publicRefreshButton" class="primary-button" type="button" data-i18n="publicRefresh">Actualiser</button>
+        </div>
+      </section>
+
+      <nav class="audience-switch" aria-label="Choisir un écran public">
+        <button class="active" type="button" data-audience-choice="public" data-i18n="audiencePublic">Grand public</button>
+        <button type="button" data-audience-choice="journalists" data-i18n="audienceJournalists">Journalistes</button>
+        <button type="button" data-audience-choice="partners" data-i18n="audiencePartners">Associations et collectivités</button>
+        <button type="button" data-audience-choice="watch" data-i18n="audienceWatch">Écran de veille</button>
+      </nav>
+
+      <section class="audience-message">
+        <p id="audienceDescription" data-i18n="audiencePublicText">Consultez rapidement les coupures confirmées et les zones qui nécessitent une nouvelle confirmation.</p>
+        <div class="public-action-row">
+          <a class="ghost-button link-button" href="index.html#map" data-i18n="openInteractiveMap">Ouvrir la carte participative</a>
+          <button id="copyPublicSummary" class="ghost-button journalist-action" type="button" data-i18n="copySummary">Copier le résumé</button>
+          <button id="downloadPublicCsv" class="ghost-button journalist-action" type="button" data-i18n="downloadCsv">Télécharger le CSV</button>
+          <button id="publicFullscreenButton" class="ghost-button watch-action" type="button" data-i18n="fullscreen">Plein écran</button>
+        </div>
+      </section>
+
+      <section class="public-metrics" aria-live="polite">
+        <article><span data-i18n="reportsLastHour">Signalements sur 1 h</span><strong id="publicReports1h">0</strong></article>
+        <article><span data-i18n="reportsLast24Hours">Signalements sur 24 h</span><strong id="publicReports24h">0</strong></article>
+        <article><span data-i18n="affectedLast24Hours">Zones signalées sur 24 h</span><strong id="publicAffected24h">0</strong></article>
+        <article class="confirmed"><span data-i18n="confirmedZones">Zones confirmées</span><strong id="publicConfirmedZones">0</strong></article>
+        <article class="to-confirm"><span data-i18n="toConfirmZones">Zones à confirmer</span><strong id="publicToConfirmZones">0</strong></article>
+      </section>
+
+      <section class="public-map-card">
+        <header>
+          <div>
+            <h2 data-i18n="publicMapTitle">Situation par zone</h2>
+            <p data-i18n="publicMapHelp">Rouge : coupure confirmée · orange : à confirmer · vert : courant revenu.</p>
+          </div>
+          <div class="public-map-legend" aria-hidden="true"><i class="confirmed"></i><i class="probable"></i><i class="resolved"></i></div>
+        </header>
+        <div id="publicMap" class="public-map" role="application" aria-label="Carte publique des coupures"></div>
+      </section>
+
+      <section class="public-data-grid">
+        <article class="public-list-card">
+          <h2 data-i18n="confirmationQueue">Zones à confirmer en priorité</h2>
+          <div id="publicConfirmationQueue" class="public-confirmation-list" aria-live="polite"></div>
+        </article>
+
+        <article class="public-list-card public-table-card">
+          <h2 data-i18n="mostActiveZones">Zones les plus actives</h2>
+          <div class="public-table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th data-i18n="zone">Zone</th>
+                  <th data-i18n="reports">Signalements</th>
+                  <th data-i18n="status">Statut</th>
+                  <th data-i18n="lastReport">Dernier signalement</th>
+                </tr>
+              </thead>
+              <tbody id="publicZoneTable"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <aside class="public-methodology">
+        <strong data-i18n="publicMethodology">À propos des chiffres</strong>
+        <p data-i18n="publicMethodologyText">Ces données sont participatives et ne constituent pas une communication officielle. Un quorum adaptatif déclenche une vérification collective de 30 minutes ; sa majorité décide ensuite entre coupure confirmée, courant revenu ou maintien à confirmer.</p>
+        <p>Source cartographique : <a href="https://data.humdata.org/dataset/cod-ab-tun" target="_blank" rel="noopener noreferrer">HDX COD-AB Tunisia</a> / <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>.</p>
+      </aside>
+    </main>
+
+    <footer class="site-footer compact-footer">
+      <a href="index.html" data-i18n="publicReturnHome">Retour à la carte participative</a>
+      <a href="status.html" data-i18n="statusPage">État du site</a>
+      <a href="terms.html">Conditions générales d’utilisation</a>
+      <a href="legal.html">Mentions légales</a>
+      <a href="privacy.html">Confidentialité</a>
+    </footer>
+
+    <script src="vendor/leaflet/leaflet.js"></script>
+    <script src="i18n.js?v=16"></script>
+    <script src="public-dashboard.js?v=2"></script>
+  </body>
+</html>

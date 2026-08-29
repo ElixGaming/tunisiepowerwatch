@@ -1,0 +1,9 @@
+node_modules/
+.pnpm-store/
+data/*
+!data/.gitkeep
+secrets/*
+!secrets/.gitkeep
+
+# Local Netlify folder
+.netlify

@@ -1,0 +1,18 @@
+{
+  "controllerName": "Nom du responsable ou de l’association",
+  "privacyEmail": "contact@example.com",
+  "editorStatus": "non-professional",
+  "editorName": "À compléter avant publication",
+  "editorAddress": "À compléter avant publication",
+  "editorPhone": "À compléter avant publication",
+  "editorRegistration": "Non applicable",
+  "editorLegalForm": "Non applicable",
+  "editorCapital": "Non applicable",
+  "publicationDirector": "À compléter avant publication",
+  "hostingProvider": "Nom de l’hébergeur",
+  "hostingAddress": "À compléter avant publication",
+  "hostingPhone": "À compléter avant publication",
+  "hostingCountry": "Pays d’hébergement",
+  "contentStorageProvider": "",
+  "contentStorageAddress": ""
+}

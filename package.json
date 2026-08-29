@@ -1,0 +1,23 @@
+{
+  "name": "tunisie-power-watch",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Plateforme participative de signalement des coupures électriques en Tunisie",
+  "scripts": {
+    "start": "node server.mjs",
+    "prepare-imadas": "node scripts/preprocess-imadas.mjs",
+    "generate-vapid": "web-push generate-vapid-keys"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "@netlify/database": "^2.0.0",
+    "altcha": "^3.2.1",
+    "leaflet": "1.9.4",
+    "qrcode": "1.5.4",
+    "web-push": "^3.6.7",
+    "ws": "^8.18.3"
+  }
+}

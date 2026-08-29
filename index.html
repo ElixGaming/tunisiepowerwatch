@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tunisie Power Watch</title>
+    <link rel="icon" type="image/png" href="assets/tn-power-watch.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="styles.css?v=17" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <img class="brand-logo" src="assets/tn-power-watch.png" alt="Logo Tunisie Power Watch" />
+        <div>
+          <strong>Tunisie Power Watch</strong>
+          <span>Signalements de coupures électriques en temps réel</span>
+        </div>
+      </div>
+      <nav class="nav">
+        <button class="icon-button active" data-scroll="overview" title="Vue générale" aria-label="Vue générale">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h8V3H3v10Zm0 8h8v-6H3v6Zm10 0h8V11h-8v10Zm0-18v6h8V3h-8Z"/></svg>
+        </button>
+        <button class="icon-button" data-scroll="map" title="Carte thermique" aria-label="Carte thermique">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6-3-6 3v15l6-3 6 3 6-3V3l-6 3Zm-1 12.4-4-2V5.6l4 2v10.8Zm-9-11.2 3-1.5v10.6l-3 1.5V7.2Zm14 9.6-3 1.5V7.7l3-1.5v10.6Z"/></svg>
+        </button>
+        <button class="icon-button" data-scroll="account" title="Compte" aria-label="Compte">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12c2.8 0 5-2.2 5-5s-2.2-5-5-5-5 2.2-5 5 2.2 5 5 5Zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5Z"/></svg>
+        </button>
+      </nav>
+      <div class="utility-controls">
+        <label class="language-control">
+          <span class="visually-hidden">Langue</span>
+          <select id="languageSelect" aria-label="Langue">
+            <option value="fr">FR</option>
+            <option value="ar">AR</option>
+          </select>
+        </label>
+        <button id="shareZoneButton" class="ghost-button compact-button" type="button" data-i18n="shareZone">Partager la zone</button>
+        <a class="ghost-button compact-button link-button" href="public.html" data-i18n="publicScreens">Écrans publics</a>
+        <button id="installAppButton" class="ghost-button compact-button" type="button" data-i18n="installApp">Installer</button>
+      </div>
+      <div class="socket-state" id="socketState">
+        <span></span>
+        Mode démo
+      </div>
+    </header>
+
+    <main>
+      <section class="hero" id="overview">
+        <div class="hero-copy">
+          <p class="eyebrow">Tunisie · Réseau électrique citoyen</p>
+          <h1>Les coupures signalées, vérifiées et cartographiées en direct.</h1>
+          <p>
+            Suivez les zones par gouvernorat, délégation et imada, localisez votre secteur et consultez
+            les pics horaires de signalements sans attendre un rafraîchissement automatique.
+          </p>
+        </div>
+        <div class="hero-panel">
+          <div class="metric">
+            <span>Signalements actifs</span>
+            <strong id="activeReports">0</strong>
+          </div>
+          <div class="metric">
+            <span>Zones touchées</span>
+            <strong id="affectedZones">0</strong>
+          </div>
+          <div class="metric">
+            <span>Fiabilité moyenne</span>
+            <strong id="trustAverage">0%</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="workspace">
+        <aside class="filters">
+          <div class="section-title">
+            <span>Filtres</span>
+            <button id="resetFilters" class="ghost-button">Réinitialiser</button>
+          </div>
+          <label>
+           Gouvernorat
+            <select id="governorateFilter">
+              <option value="all">Tous</option>
+            </select>
+          </label>
+          <label>
+            Statut
+            <select id="statusFilter">
+              <option value="all">Tous</option>
+              <option value="probable">À confirmer</option>
+              <option value="confirmed">Confirmée</option>
+              <option value="resolved">Résolue</option>
+            </select>
+          </label>
+          <label>
+            Minimum signalements
+            <input id="minimumReports" type="range" min="0" max="120" value="0" />
+            <output id="minimumReportsValue">0</output>
+          </label>
+          <div class="locator-box">
+            <div class="section-title">
+              <span>Me localiser</span>
+            
+            </div>
+            <label>
+              <span data-i18n="geographicGovernorate">Gouvernorat</span>
+              <select id="locateDirection"></select>
+            </label>
+            <label>
+              <span data-i18n="geographicDelegation">Délégation</span>
+              <select id="locateDistrict"></select>
+            </label>
+            <label>
+              <span data-i18n="geographicLocalZone">Zone locale (imada)</span>
+              <select id="locateZone"></select>
+            </label>
+            <button id="gpsLocateButton" class="ghost-button" type="button" data-i18n="useMyLocation">Utiliser ma position</button>
+            <button id="locateButton" class="primary-button" type="button">Afficher ma zone</button>
+          </div>
+            <p class="participation-note">Les signalements affichés proviennent des membres de la communauté.</p>
+        </aside>
+
+        <section class="map-zone" id="map">
+          <div class="section-title">
+            <span>Carte des coupures</span>
+            <div class="legend">
+              <span>Faible</span>
+              <i></i><i></i><i></i><i></i>
+              <span>Fort</span>
+            </div>
+          </div>
+          <div class="map-display-bar">
+            <small>
+              <span data-i18n="mapIndicativeAreas">Limites précises de 2 084 imadas, conservées à environ 15 m.</span>
+              · <a href="https://data.humdata.org/dataset/cod-ab-tun" target="_blank" rel="noopener noreferrer">HDX COD-AB</a>
+              / <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>
+            </small>
+          </div>
+          <div class="map-grid">
+            <div class="tunisia-map" aria-label="Carte OpenStreetMap des zones en Tunisie">
+              <div id="osmMap" class="osm-map" role="application"></div>
+              <div id="mapGestureHint" class="map-gesture-hint" hidden data-i18n="twoFingerMap">Utilisez deux doigts pour déplacer la carte</div>
+            </div>
+            <div class="rank-panel">
+              <section class="city-detail" id="cityDetail" hidden>
+                <div class="section-title">
+                  <span id="detailTitle">Ville sélectionnée</span>
+                  <span id="detailStatus">Statut</span>
+                </div>
+                <div class="detail-territory" id="detailTerritory"></div>
+                <div class="detail-metrics">
+                  <div><span>Signalements</span><strong id="detailReports">0</strong></div>
+                  <div><span>Confiance</span><strong id="detailTrust">0%</strong></div>
+                  <div><span>Pic horaire</span><strong id="detailPeak">--:--</strong></div>
+                </div>
+                <svg id="hourlyChart" class="hourly-chart" viewBox="0 0 520 190" role="img" aria-label="Graphique horaire des signalements"></svg>
+                <div class="community-actions">
+                  <button id="confirmOutageButton" class="vote-button outage" type="button" data-i18n="confirmOutage">Confirmer la coupure</button>
+                  <button id="confirmResolvedButton" class="vote-button resolved" type="button" data-i18n="confirmResolved">Confirmer le retour</button>
+                </div>
+                <p id="communityVoteSummary" class="community-summary"></p>
+                <p id="verificationSummary" class="verification-summary" hidden></p>
+                <section class="zone-statistics">
+                  <div class="section-title">
+                    <span data-i18n="statistics">Statistiques</span>
+                    <div class="period-switch">
+                      <button class="active" type="button" data-stats-days="7">7 j</button>
+                      <button type="button" data-stats-days="30">30 j</button>
+                    </div>
+                  </div>
+                  <div class="statistics-metrics">
+                    <div><span data-i18n="reportsInPeriod">Signalements</span><strong id="statsTotal">0</strong></div>
+                    <div><span data-i18n="averageDuration">Durée moyenne</span><strong id="statsDuration">—</strong></div>
+                    <div><span data-i18n="peakHour">Pic horaire</span><strong id="statsPeak">—</strong></div>
+                  </div>
+                  <svg id="dailyStatsChart" class="daily-stats-chart" viewBox="0 0 520 130" role="img" aria-label="Signalements par jour"></svg>
+                </section>
+              </section>
+              <div class="section-title">
+                <span>Zones les plus touchées</span>
+                <span id="lastUpdate">maintenant</span>
+              </div>
+              <div id="zoneList" class="zone-list"></div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="lower-grid">
+        <form class="report-form" id="reportForm">
+          <div class="section-title">
+            <span>Nouveau signalement</span>
+            <span class="shield">ALTCHA auto-hébergé</span>
+          </div>
+          <div id="qrReportNotice" class="qr-report-notice" hidden></div>
+          <div id="reportZoneSearchBox" class="zone-search-box">
+            <label for="reportZoneSearch">
+              <span data-i18n="zoneSearchLabel">Rechercher votre zone</span>
+              <input
+                id="reportZoneSearch"
+                type="search"
+                maxlength="100"
+                autocomplete="off"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-controls="reportZoneSearchResults"
+                aria-expanded="false"
+                data-i18n-placeholder="zoneSearchPlaceholder"
+                placeholder="Imada, délégation ou gouvernorat…"
+              />
+            </label>
+            <div id="reportZoneSearchResults" class="zone-search-results" role="listbox" hidden></div>
+            <small id="reportZoneSearchStatus" class="field-help" aria-live="polite" data-i18n="zoneSearchHelp">Saisissez au moins 2 caractères, puis choisissez le bon résultat.</small>
+          </div>
+          <label>
+            <span data-i18n="geographicGovernorate">Gouvernorat</span>
+            <select id="reportGovernorate" required></select>
+          </label>
+          <label>
+            <span data-i18n="geographicLocalZone">Zone locale (imada)</span>
+            <select id="cityInput" required></select>
+          </label>
+          <label>
+            Statut observé
+            <select id="reportStatus" required>
+              <option value="probable">Coupure probable</option>
+              <option value="confirmed">Confirmée</option>
+              <option value="resolved">Résolue</option>
+            </select>
+          </label>
+          <label>
+            Note de vérification
+            <textarea id="reportNote" rows="3" placeholder="Quartier, durée, repères locaux..."></textarea>
+            <small class="field-help">N’indiquez aucun nom, email, téléphone ou autre information permettant d’identifier une personne.</small>
+          </label>
+          <div class="protection-box">
+            <span>Score confiance estimé</span>
+            <strong id="trustPreview">64%</strong>
+            <small>Score indicatif d’une contribution anonyme, ajusté selon les précisions facultatives de la note.</small>
+          </div>
+          <div class="report-captcha">
+            <altcha-widget
+              id="reportCaptcha"
+              challenge="/api/captcha/challenge"
+              language="fr-fr"
+              name="altcha"
+              type="checkbox"
+              auto="off"
+              configuration='{"humanInteractionSignature":false,"minDuration":500}'
+            ></altcha-widget>
+            <small>Vérification locale sans publicité, cookie de pistage, empreinte d’appareil ni appel vers un service tiers.</small>
+          </div>
+          <label class="privacy-ack">
+            <input id="reportTermsAcknowledged" type="checkbox" required />
+            <span>Je certifie avoir au moins 18 ans, avoir personnellement observé la situation et accepter les <a href="terms.html">règles de contribution</a>.</span>
+          </label>
+          <small id="reportAuthHint" class="form-hint">Sans compte · un signalement anonyme toutes les 20 minutes.</small>
+          <button id="reportSubmit" class="primary-button" type="submit">Envoyer le signalement</button>
+          <div id="whatsappReportOption" class="whatsapp-option" hidden>
+            <span data-i18n="whatsappReportHelp">Vous pouvez aussi effectuer un signalement dans une conversation guidée.</span>
+            <a id="whatsappReportLink" class="whatsapp-button" href="#" target="_blank" rel="noopener noreferrer" data-i18n="reportWithWhatsapp">Signaler avec WhatsApp</a>
+          </div>
+        </form>
+
+        <section class="live-feed">
+          <div class="section-title">
+            <span>Flux temps réel</span>
+            <span id="feedCount">0 événements</span>
+          </div>
+          <div id="feed" class="feed"></div>
+        </section>
+
+        <section class="account-panel" id="account">
+          <div class="section-title">
+            <span data-i18n="accountAccessTitle">Comptes publics · Connexion Admin</span>
+            <span id="accountBadge">Invité</span>
+          </div>
+          <div id="authForms" class="auth-forms">
+            <p class="field-help" data-i18n="accountOpenHelp">Tout le monde peut créer un compte. Le délai passe alors de 20 à 10 minutes entre deux signalements.</p>
+            <div class="tabs auth-tabs" role="tablist" aria-label="Connexion ou inscription">
+              <button id="authTabLogin" class="tab active" type="button" role="tab" aria-selected="true" data-auth-view="login" data-i18n="login">Connexion</button>
+              <button id="authTabRegister" class="tab" type="button" role="tab" aria-selected="false" data-auth-view="register" data-i18n="register">Inscription</button>
+            </div>
+
+            <form id="loginForm" class="local-auth-form">
+              <label>
+                <span data-i18n="email">Adresse email</span>
+                <input id="loginEmail" type="email" maxlength="254" autocomplete="username" required />
+              </label>
+              <label>
+                <span data-i18n="password">Mot de passe</span>
+                <input id="loginPassword" type="password" maxlength="128" autocomplete="current-password" required />
+              </label>
+              <label class="privacy-ack">
+                <input id="loginTermsAcknowledged" type="checkbox" required />
+                <span>J’ai lu et j’accepte les <a href="terms.html">conditions générales d’utilisation</a>.</span>
+              </label>
+              <button id="loginButton" class="primary-button" type="submit" data-i18n="loginButton">Se connecter</button>
+              <small class="field-help" data-i18n="localLoginPrivacy">Votre email reste privé et n’apparaît jamais dans les signalements.</small>
+            </form>
+
+            <form id="registerForm" class="local-auth-form" hidden>
+              <label>
+                <span data-i18n="publicName">Nom public</span>
+                <input id="registerName" type="text" minlength="2" maxlength="80" autocomplete="nickname" required />
+              </label>
+              <label>
+                <span data-i18n="email">Adresse email</span>
+                <input id="registerEmail" type="email" maxlength="254" autocomplete="username" required />
+              </label>
+              <label>
+                <span data-i18n="password">Mot de passe</span>
+                <input id="registerPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required />
+                <small class="field-help" data-i18n="passwordHelp">12 caractères minimum. Les phrases de passe sont recommandées.</small>
+              </label>
+              <label>
+                <span data-i18n="confirmPassword">Confirmer le mot de passe</span>
+                <input id="registerPasswordConfirmation" type="password" minlength="12" maxlength="128" autocomplete="new-password" required />
+              </label>
+              <div class="report-captcha">
+                <altcha-widget
+                  id="registerCaptcha"
+                  challenge="/api/captcha/challenge"
+                  language="fr-fr"
+                  name="register-altcha"
+                  type="checkbox"
+                  auto="off"
+                  configuration='{"humanInteractionSignature":false,"minDuration":500}'
+                ></altcha-widget>
+                <small data-i18n="registerCaptchaHelp">Cette vérification empêche la création automatisée de faux comptes.</small>
+              </div>
+              <label class="privacy-ack">
+                <input id="registerPrivacyAcknowledged" type="checkbox" required />
+                <span>J’ai lu la <a href="privacy.html">politique de confidentialité</a>. Mon compte restera facultatif et mes nouveaux signalements Web seront affichés comme anonymes.</span>
+              </label>
+              <label class="privacy-ack">
+                <input id="registerTermsAcknowledged" type="checkbox" required />
+                <span>Je certifie avoir au moins 18 ans, j’ai lu et j’accepte les <a href="terms.html">conditions générales d’utilisation</a>.</span>
+              </label>
+              <button id="registerButton" class="primary-button" type="submit" data-i18n="createAccount">Créer mon compte</button>
+            </form>
+          </div>
+          <div class="user-card" id="userCard" hidden></div>
+          <form id="deleteAccountForm" class="danger-zone" hidden>
+            <strong>Suppression définitive</strong>
+            <small>Le compte et les anciens signalements qui lui sont encore rattachés seront supprimés. Les nouveaux signalements Web anonymes ne peuvent pas être reliés automatiquement au compte.</small>
+            <label>
+              Saisissez SUPPRIMER pour confirmer
+              <input id="deleteAccountConfirmation" required pattern="SUPPRIMER" autocomplete="off" />
+            </label>
+            <label>
+              <span data-i18n="currentPassword">Mot de passe actuel</span>
+              <input id="deleteAccountPassword" type="password" minlength="12" maxlength="128" autocomplete="current-password" required />
+            </label>
+            <div class="inline-actions">
+              <button class="danger-button" type="submit">Supprimer définitivement</button>
+              <button id="cancelDeleteAccount" class="ghost-button" type="button">Annuler</button>
+            </div>
+          </form>
+        </section>
+      </section>
+
+      <section class="feature-grid" id="tools">
+        <section class="feature-panel">
+          <div class="section-title"><span data-i18n="mobileAndData">Téléphone et connexion</span></div>
+          <label class="setting-row">
+            <input id="lowDataToggle" type="checkbox" />
+            <span><strong data-i18n="lowData">Mode connexion lente</strong><small data-i18n="lowDataHelp">N’affiche pas le fond cartographique afin d’économiser les données mobiles.</small></span>
+          </label>
+          <button id="installAppSettingsButton" class="ghost-button" type="button" data-i18n="installApp">Installer comme application</button>
+          <small id="installStatus" class="field-help"></small>
+        </section>
+
+        <section class="feature-panel">
+          <div class="section-title"><span data-i18n="notifications">Notifications facultatives</span></div>
+          <p data-i18n="notificationsHelp">Recevez une alerte lorsqu’une coupure ou un retour du courant est signalé dans une zone choisie.</p>
+          <label>
+            <span data-i18n="watchedZone">Zone suivie</span>
+            <select id="notificationZone"></select>
+          </label>
+          <div class="inline-actions">
+            <button id="enableNotificationsButton" class="primary-button" type="button" data-i18n="enableNotifications">Activer les notifications</button>
+            <button id="disableNotificationsButton" class="ghost-button" type="button" data-i18n="disableNotifications" hidden>Désactiver</button>
+          </div>
+          <small id="notificationStatus" class="field-help"></small>
+        </section>
+
+        <section class="feature-panel">
+          <div class="section-title"><span data-i18n="qrCodes">QR codes de signalement</span></div>
+          <p data-i18n="qrCodesHelp">Imprimez deux QR codes par zone : coupure confirmée et courant revenu.</p>
+          <a class="ghost-button link-button" href="qr-codes.html" data-i18n="openQrDirectory">Ouvrir la planche des QR codes</a>
+          <small class="field-help" data-i18n="qrNoAutomaticSend">Le scan préremplit le formulaire, mais n’envoie jamais un signalement sans confirmation.</small>
+        </section>
+      </section>
+
+      <section id="adminPanel" class="admin-panel" hidden>
+        <div class="section-title">
+          <span data-i18n="administration">Administration et modération</span>
+          <button id="refreshAdminButton" class="ghost-button" type="button" data-i18n="refresh">Actualiser</button>
+        </div>
+        <p class="field-help" data-i18n="adminHelp">Les contenus les plus signalés apparaissent en premier. Les actions sont journalisées dans la base.</p>
+        <div id="adminList" class="admin-list"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Tunisie Power Watch · Service participatif</span>
+      <a href="public.html" data-i18n="publicScreens">Écrans publics</a>
+      <a href="status.html" data-i18n="statusPage">État du site</a>
+      <a href="terms.html">Conditions générales d’utilisation</a>
+      <a href="legal.html">Mentions légales</a>
+      <a href="privacy.html">Confidentialité et données personnelles</a>
+      <small>Sans publicité ni mesure d’audience · cookies strictement nécessaires à la session et au délai anti-spam uniquement</small>
+    </footer>
+
+    <dialog id="zoneQuickReportDialog" class="quick-report-dialog" aria-labelledby="zoneQuickReportTitle">
+      <form method="dialog" class="quick-report-card">
+        <button class="quick-report-close" type="submit" value="cancel" aria-label="Fermer">×</button>
+        <p class="quick-report-eyebrow" data-i18n="quickReportEyebrow">Signalement rapide</p>
+        <h2 id="zoneQuickReportTitle"><span data-i18n="quickReportQuestion">Que se passe-t-il à</span> <strong id="zoneQuickReportName"></strong> ?</h2>
+        <p id="zoneQuickReportDistrict" class="quick-report-district"></p>
+        <p data-i18n="quickReportHelp">Choisissez la situation observée. Le formulaire sera prérempli sans être envoyé.</p>
+        <div class="quick-report-actions">
+          <button type="button" class="quick-status-button outage" data-quick-report-status="confirmed" data-i18n="quickReportOutage">Le courant a coupé</button>
+          <button type="button" class="quick-status-button resolved" data-quick-report-status="resolved" data-i18n="quickReportResolved">Le courant est revenu</button>
+        </div>
+        <button type="submit" value="cancel" class="ghost-button quick-report-cancel" data-i18n="cancel">Annuler</button>
+      </form>
+    </dialog>
+
+    <template id="zoneTemplate">
+      <article class="zone-card">
+        <div>
+          <strong></strong>
+          <span></span>
+        </div>
+        <svg class="city-chart" viewBox="0 0 118 42" aria-label="Graphique de signalements"></svg>
+        <b></b>
+        <em></em>
+      </article>
+    </template>
+
+    <script src="i18n.js?v=21"></script>
+    <script src="pwa.js?v=1"></script>
+    <script src="vendor/leaflet/leaflet.js"></script>
+    <script src="steg-zones.js?v=2"></script>
+    <script src="vendor/altcha/altcha.js?v=3.2.1" type="module"></script>
+    <script src="app.js?v=26"></script>
+  </body>
+</html>

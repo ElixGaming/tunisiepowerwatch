@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Confidentialité · Tunisie Power Watch</title>
+    <link rel="icon" type="image/png" href="assets/tn-power-watch.png" />
+    <link rel="stylesheet" href="styles.css?v=17" />
+  </head>
+  <body>
+    <header class="privacy-header">
+      <a class="brand privacy-brand" href="index.html">
+        <img class="brand-logo" src="assets/tn-power-watch.png" alt="Logo Tunisie Power Watch" />
+        <span>Retour à Tunisie Power Watch</span>
+      </a>
+    </header>
+
+    <main class="privacy-page">
+      <p class="eyebrow privacy-eyebrow">Données personnelles</p>
+      <h1>Politique de confidentialité</h1>
+      <p class="privacy-lead">Cette page explique quelles données sont utilisées, pourquoi elles le sont et comment exercer vos droits.</p>
+
+      <div id="privacyConfigWarning" class="privacy-warning" hidden>
+        La configuration du responsable du traitement doit être complétée avant toute publication du site.
+      </div>
+
+      <section>
+        <h2>Responsable du traitement</h2>
+        <p><strong data-controller>Chargement…</strong></p>
+        <p>Contact pour les données personnelles : <a data-privacy-email>Chargement…</a></p>
+      </section>
+
+      <section>
+        <h2>Données utilisées et finalités</h2>
+        <ul>
+          <li><strong>Compte local :</strong> adresse email privée chiffrée, empreinte HMAC de recherche, nom public, réputation et empreinte cryptographique salée du mot de passe, afin de créer le compte et permettre sa connexion. Ni l’email ni le mot de passe ne sont enregistrés en clair dans SQLite.</li>
+          <li><strong>Signalements Web anonymes :</strong> zone, statut observé, note facultative, score de confiance et date, afin d’alimenter la carte participative. Aucun compte, email, téléphone, identifiant d’appareil ou adresse IP n’est enregistré avec le signalement.</li>
+          <li><strong>Vérification ALTCHA :</strong> défi aléatoire signé et preuve de calcul à usage unique, traités uniquement par le navigateur et le serveur Tunisie Power Watch. ALTCHA est auto-hébergé et n’utilise ni service tiers, ni cookie, ni pistage, ni empreinte d’appareil.</li>
+          <li><strong>Confirmations communautaires :</strong> choix « coupure » ou « courant revenu », zone et dates, afin de consolider l’état affiché.</li>
+          <li><strong>Modération :</strong> motif d’un contenu signalé, compte à l’origine du signalement et décisions de l’administrateur, afin de lutter contre les abus.</li>
+          <li><strong>Notifications facultatives :</strong> zone choisie, adresse technique d’abonnement Push et clés publiques d’acheminement fournies par le navigateur.</li>
+          <li><strong>Bot WhatsApp facultatif :</strong> identifiant WhatsApp transformé en pseudonyme non réversible sans la clé secrète du serveur, étape de conversation, zone et statut choisis. Le numéro en clair, la position exacte et le texte des messages ne sont pas enregistrés dans SQLite.</li>
+          <li><strong>Session :</strong> identifiant aléatoire conservé sous forme d’empreinte côté serveur, afin de maintenir la connexion.</li>
+          <li><strong>Preuve d’acceptation :</strong> version des conditions générales et dates d’acceptation, afin d’établir les règles contractuelles acceptées lors de la participation.</li>
+          <li><strong>Sécurité :</strong> l’adresse réseau est transformée immédiatement par HMAC en un identifiant pseudonyme temporaire afin de limiter les créations de comptes, tentatives de connexion et envois abusifs. L’adresse en clair n’est pas inscrite dans SQLite, l’identifiant n’est jamais associé au contenu du signalement et la limite expire au plus tard après 24 heures.</li>
+        </ul>
+        <p>Le formulaire Web de signalement fonctionne sans compte et affiche « Anonyme » dans le flux. Pour un compte local facultatif, l’email sert uniquement d’identifiant privé de connexion. Le site ne demande jamais le numéro de téléphone. Lorsque vous choisissez volontairement le bot, WhatsApp transmet nécessairement un identifiant de contact au serveur pour permettre la réponse ; il est immédiatement pseudonymisé avant toute conservation.</p>
+      </section>
+
+      <section>
+        <h2>Bases légales</h2>
+        <p>La publication anonyme demandée, la création et l’utilisation facultative d’un compte, l’enregistrement de l’acceptation des CGU pour les comptes et les confirmations sont nécessaires pour fournir le service participatif. ALTCHA, les délais anti-abus de vingt minutes sans compte et de dix minutes avec un compte, la sécurisation des connexions, la prévention des doublons et la modération reposent sur l’intérêt légitime à protéger le service et ses utilisateurs. Les notifications reposent sur votre consentement : elles ne sont activées qu’après votre action et l’autorisation explicite du navigateur, puis peuvent être désactivées à tout moment. Le bot WhatsApp ne poursuit la conversation qu’après votre réponse affirmative à sa notice d’information ; vous pouvez interrompre l’échange avec « ANNULER ».</p>
+      </section>
+
+      <section>
+        <h2>Minimisation et absence de publicité</h2>
+        <p>Aucun compte, email ou téléphone n’est demandé pour envoyer un signalement Web. L’email est demandé uniquement lorsque vous choisissez volontairement un compte local facultatif. Le site ne contient aucun outil publicitaire et n’utilise aucun service de mesure d’audience. Ne saisissez aucune information identifiant une autre personne dans une note de signalement.</p>
+      </section>
+
+      <section>
+        <h2>Destinataires et carte</h2>
+        <p>Les données de compte et de signalement sont accessibles uniquement à l’exploitant du service et à son hébergeur lorsque cela est nécessaire au fonctionnement ou à la sécurité. Comme tout hébergeur Internet, celui-ci peut traiter des journaux techniques comprenant notamment l’adresse IP selon sa propre politique et ses durées de conservation ; ces journaux ne sont pas ajoutés aux signalements par Tunisie Power Watch.</p>
+        <p>Si vous utilisez le bot, les messages transitent par WhatsApp et Meta avant d’atteindre Tunisie Power Watch. Meta traite notamment le numéro, les métadonnées et le contenu nécessaire à l’acheminement conformément à la <a href="https://www.whatsapp.com/legal/privacy-policy">politique de confidentialité de WhatsApp</a>. Tunisie Power Watch ne conserve pas le numéro en clair ni le texte reçu ; un pseudonyme technique permet toutefois de rattacher vos propres signalements et d’exécuter vos demandes.</p>
+        <p>La carte charge des tuiles depuis OpenStreetMap. Le navigateur contacte donc les serveurs de l’OpenStreetMap Foundation, qui peuvent recevoir l’adresse IP et des informations techniques de requête conformément à leur <a href="https://osmfoundation.org/wiki/Privacy_Policy">politique de confidentialité</a>.</p>
+        <p>Si vous activez les notifications, l’abonnement est acheminé par le service Push choisi par votre navigateur ou votre système (par exemple Apple, Google ou Mozilla). Ce prestataire reçoit les informations techniques nécessaires à l’acheminement. Vérifiez sa politique de confidentialité, notamment concernant d’éventuels transferts hors de l’Union européenne.</p>
+        <p>Hébergeur : <strong data-hosting-provider>Chargement…</strong> · Pays : <strong data-hosting-country>Chargement…</strong></p>
+      </section>
+
+      <section>
+        <h2>Durées de conservation</h2>
+        <ul>
+          <li>Sessions de connexion : <strong data-session-retention>30 jours</strong>.</li>
+          <li>Signalements : <strong data-report-retention>730 jours</strong>, puis suppression automatique.</li>
+          <li>Confirmations, alertes de modération et abonnements Push : jusqu’à la suppression du compte ; l’abonnement Push peut aussi être supprimé immédiatement depuis l’interface.</li>
+          <li>Conversation WhatsApp inachevée : 30 minutes. Identifiant technique d’un message reçu, utilisé uniquement pour empêcher les doublons de webhook : 7 jours.</li>
+          <li>Compte pseudonyme et signalements WhatsApp : mêmes durées que les autres comptes et signalements, ou suppression immédiate avec la commande « SUPPRIMER MES DONNÉES ».</li>
+          <li>Compte, y compris l’email et l’empreinte du mot de passe pour un compte local, ainsi que les preuves d’acceptation : jusqu’à sa suppression par l’utilisateur, ou automatiquement après <strong data-account-retention>730 jours</strong> sans connexion.</li>
+          <li>Identifiants réseau pseudonymisés de sécurité : 24 heures au maximum.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Vos droits</h2>
+        <p>Depuis votre espace compte, vous pouvez exporter ou supprimer les données rattachées aux fonctions facultatives du compte. Un signalement Web anonyme n’est pas rattaché à votre compte et le site ne peut donc pas reconnaître automatiquement son auteur. Pour demander le retrait d’un signalement, indiquez sa zone, sa date approximative et son contenu à <a data-privacy-email>Chargement…</a>. Dans WhatsApp, envoyez « MES DONNÉES » ou « SUPPRIMER MES DONNÉES » pour agir sur les données rattachées à votre pseudonyme.</p>
+        <p>Si vous estimez que vos droits ne sont pas respectés, vous pouvez saisir la <a href="https://www.cnil.fr/fr/plaintes">CNIL</a>.</p>
+      </section>
+
+      <section>
+        <h2>Cookies et stockage local</h2>
+        <p>Le site utilise un cookie de session strictement nécessaire après une connexion locale et, après un signalement sans compte, un cookie signé contenant uniquement son heure d’expiration afin d’appliquer le délai anti-spam de vingt minutes. Le délai de dix minutes d’un compte connecté est contrôlé côté serveur. Ces cookies sont inaccessibles au JavaScript de la page et expirent automatiquement. ALTCHA ne dépose aucun cookie. La zone choisie, la langue, le mode d’affichage de la carte, le mode connexion lente et la zone de notification peuvent être mémorisés uniquement dans votre navigateur. Aucun cookie publicitaire ou de suivi n’est utilisé.</p>
+      </section>
+
+      <section>
+        <h2>Localisation facultative</h2>
+        <p>La fonction « Utiliser ma position » demande l’autorisation du navigateur puis calcule localement la zone la plus proche. Les coordonnées GPS exactes ne sont ni envoyées au serveur, ni enregistrées dans SQLite. Seul l’identifiant de la zone choisie peut rester mémorisé dans votre navigateur.</p>
+        <p>Si vous envoyez volontairement une position au bot WhatsApp, elle est reçue uniquement pour calculer la zone participante la plus proche. La latitude et la longitude ne sont pas écrites dans la base et le bot conserve seulement l’identifiant de la zone pendant la conversation.</p>
+      </section>
+
+      <section>
+        <h2>Sécurité</h2>
+        <p>Les signalements Web et les créations de comptes sont protégés par un défi ALTCHA signé, vérifié côté serveur et utilisable une seule fois. Le délai de vingt minutes sans compte est contrôlé par un cookie signé et une limite réseau pseudonymisée temporaire ; le délai de dix minutes d’un compte utilise une empreinte technique temporaire du compte. Les mots de passe sont protégés avec scrypt et les emails avec AES-256-GCM. Les sessions sont stockées sous forme d’empreinte et les sessions administrateur expirent après huit heures. Les requêtes externes sont contrôlées et des en-têtes de sécurité limitent les risques d’injection, de cadrage et d’accès aux fonctions sensibles du navigateur. Les webhooks WhatsApp sont authentifiés par une signature cryptographique.</p>
+      </section>
+
+      <p class="privacy-version">Version de la notice : <span data-notice-version>2026-08-02-v6</span>.</p>
+    </main>
+
+    <footer class="site-footer compact-footer">
+      <a href="index.html">Accueil</a>
+      <a href="status.html">État du site</a>
+      <a href="terms.html">Conditions générales d’utilisation</a>
+      <a href="legal.html">Mentions légales</a>
+    </footer>
+
+    <script src="privacy.js"></script>
+  </body>
+</html>
