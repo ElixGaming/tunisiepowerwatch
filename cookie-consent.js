@@ -1,57 +1,44 @@
-```js
 (() => {
   "use strict";
 
   const STORAGE_KEY = "tpw_cookie_consent";
 
-  function getConsent() {
-    try {
-      return localStorage.getItem(STORAGE_KEY);
-    } catch {
-      return null;
-    }
+  // Ne rien afficher si un choix a déjà été enregistré.
+  if (localStorage.getItem(STORAGE_KEY)) {
+    return;
   }
 
-  function saveConsent(value) {
-    try {
-      localStorage.setItem(STORAGE_KEY, value);
-    } catch {
-      // Le site continue de fonctionner même si le stockage local est indisponible.
+  function showCookieBanner() {
+    if (document.getElementById("cookieConsentBanner")) {
+      return;
     }
-  }
 
-  function createBanner() {
-    if (document.getElementById("cookieConsentBanner")) return;
+    const banner = document.createElement("div");
 
-    const banner = document.createElement("section");
     banner.id = "cookieConsentBanner";
-    banner.className = "cookie-consent";
-    banner.setAttribute("role", "dialog");
-    banner.setAttribute("aria-labelledby", "cookieConsentTitle");
-    banner.setAttribute("aria-describedby", "cookieConsentText");
 
     banner.innerHTML = `
-      <div class="cookie-consent-content">
-        <div>
-          <strong id="cookieConsentTitle">🍪 Cookies et confidentialité</strong>
-          <p id="cookieConsentText">
-            Tunisie Power Watch utilise des cookies et un stockage local nécessaires
-            au fonctionnement du service, notamment pour les sessions et la
-            protection anti-abus. Aucun cookie publicitaire ou de mesure d’audience
+      <div class="cookie-consent-box">
+        <div class="cookie-consent-text">
+          <strong>🍪 Cookies et confidentialité</strong>
+
+          <p>
+            Tunisie Power Watch utilise des cookies et le stockage local
+            nécessaires au fonctionnement du service, notamment pour les
+            sessions et la protection anti-abus.
+            Aucun cookie publicitaire ou outil de mesure d’audience
             n’est actuellement utilisé.
           </p>
+
+          <a href="cookies.html">En savoir plus sur les cookies</a>
         </div>
 
-        <div class="cookie-consent-actions">
-          <button type="button" id="cookieReject" class="ghost-button">
+        <div class="cookie-consent-buttons">
+          <button id="cookieReject" type="button">
             Refuser
           </button>
 
-          <a href="cookies.html" class="ghost-button">
-            Gérer mes choix
-          </a>
-
-          <button type="button" id="cookieAccept" class="primary-button">
+          <button id="cookieAccept" type="button">
             Accepter
           </button>
         </div>
@@ -63,27 +50,21 @@
     document
       .getElementById("cookieAccept")
       .addEventListener("click", () => {
-        saveConsent("accepted");
+        localStorage.setItem(STORAGE_KEY, "accepted");
         banner.remove();
       });
 
     document
       .getElementById("cookieReject")
       .addEventListener("click", () => {
-        saveConsent("rejected");
+        localStorage.setItem(STORAGE_KEY, "rejected");
         banner.remove();
       });
   }
 
-  function init() {
-    if (getConsent()) return;
-    createBanner();
-  }
-
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
+    document.addEventListener("DOMContentLoaded", showCookieBanner);
   } else {
-    init();
+    showCookieBanner();
   }
 })();
-```
