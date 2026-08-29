@@ -2,17 +2,34 @@
   "use strict";
 
   const STORAGE_KEY = "tpw_cookie_consent";
-  const GTM_ID = "GTM-56HZ6KWC";
+  const GA_ID = "G-R72RXZR2YL"; // ← REMPLACE PAR TON ID GA4
 
-  function gtag() {
+  function ensureDataLayer() {
     window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push(arguments);
+
+    window.gtag = window.gtag || function () {
+      window.dataLayer.push(arguments);
+    };
   }
 
-  function setGoogleConsent(accepted) {
+  function setDefaultConsent() {
+    ensureDataLayer();
+
+    window.gtag("consent", "default", {
+      ad_storage: "denied",
+      analytics_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied",
+      wait_for_update: 500
+    });
+  }
+
+  function updateConsent(accepted) {
+    ensureDataLayer();
+
     const value = accepted ? "granted" : "denied";
 
-    gtag("consent", "update", {
+    window.gtag("consent", "update", {
       ad_storage: value,
       analytics_storage: value,
       ad_user_data: value,
@@ -20,46 +37,39 @@
     });
   }
 
-  function loadGTM() {
-    if (document.querySelector("script[data-tpw-gtm]")) {
+  function loadGoogleAnalytics() {
+    if (document.querySelector("script[data-tpw-ga]")) {
       return;
     }
 
-    window.dataLayer = window.dataLayer || [];
+    ensureDataLayer();
 
-    window.dataLayer.push({
-      "gtm.start": new Date().getTime(),
-      event: "gtm.js"
-    });
+    window.gtag("js", new Date());
+
+    window.gtag("config", GA_ID);
 
     const script = document.createElement("script");
 
     script.async = true;
     script.src =
-      "https://www.googletagmanager.com/gtm.js?id=" +
-      encodeURIComponent(GTM_ID);
+      "https://www.googletagmanager.com/gtag/js?id=" +
+      encodeURIComponent(GA_ID);
 
-    script.dataset.tpwGtm = "true";
+    script.dataset.tpwGa = "true";
 
     document.head.appendChild(script);
   }
 
   function applyConsent(accepted) {
-    setGoogleConsent(accepted);
+    updateConsent(accepted);
 
-    /*
-     * GTM et les balises Google ne sont chargés
-     * qu'après acceptation.
-     */
     if (accepted) {
-      loadGTM();
+      loadGoogleAnalytics();
     }
   }
 
   function createBanner() {
-    const oldBanner = document.getElementById(
-      "cookieConsentBanner"
-    );
+    const oldBanner = document.getElementById("cookieConsentBanner");
 
     if (oldBanner) {
       oldBanner.remove();
@@ -73,21 +83,18 @@
       <div class="cookie-consent-box">
 
         <div class="cookie-consent-text">
-
           <strong>🍪 Cookies et confidentialité</strong>
 
           <p>
             Tunisie Power Watch utilise des cookies nécessaires
-            au fonctionnement du service. Des technologies
-            optionnelles de mesure d’audience et de publicité
-            peuvent être utilisées uniquement après votre
+            au fonctionnement du service. La mesure d’audience
+            Google Analytics est utilisée uniquement après votre
             consentement.
           </p>
 
           <a href="cookies.html">
             En savoir plus
           </a>
-
         </div>
 
         <div class="cookie-consent-buttons">
@@ -115,59 +122,34 @@
 
     document.body.appendChild(banner);
 
-    const acceptButton =
-      document.getElementById("cookieAccept");
+    document
+      .getElementById("cookieAccept")
+      .addEventListener("click", () => {
+        localStorage.setItem(STORAGE_KEY, "accepted");
 
-    const rejectButton =
-      document.getElementById("cookieReject");
+        applyConsent(true);
 
-    acceptButton.addEventListener("click", () => {
-      localStorage.setItem(
-        STORAGE_KEY,
-        "accepted"
-      );
+        banner.remove();
+      });
 
-      applyConsent(true);
+    document
+      .getElementById("cookieReject")
+      .addEventListener("click", () => {
+        localStorage.setItem(STORAGE_KEY, "rejected");
 
-      banner.remove();
-    });
+        applyConsent(false);
 
-    rejectButton.addEventListener("click", () => {
-      localStorage.setItem(
-        STORAGE_KEY,
-        "rejected"
-      );
-
-      applyConsent(false);
-
-      banner.remove();
-    });
+        banner.remove();
+      });
   }
 
-  /*
-   * Permet de rouvrir le bandeau depuis un bouton
-   * présent sur cookies.html ou une autre page.
-   */
   window.openCookiePreferences = function () {
     localStorage.removeItem(STORAGE_KEY);
     createBanner();
   };
 
   function initializeCookieConsent() {
-    window.dataLayer = window.dataLayer || [];
-
-    /*
-     * Consent Mode par défaut :
-     * aucune mesure d'audience ni publicité
-     * avant le choix de l'utilisateur.
-     */
-    gtag("consent", "default", {
-      ad_storage: "denied",
-      analytics_storage: "denied",
-      ad_user_data: "denied",
-      ad_personalization: "denied",
-      wait_for_update: 500
-    });
+    setDefaultConsent();
 
     const savedConsent =
       localStorage.getItem(STORAGE_KEY);
@@ -182,10 +164,6 @@
       return;
     }
 
-    /*
-     * Aucun choix enregistré :
-     * afficher le bandeau.
-     */
     createBanner();
   }
 
