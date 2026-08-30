@@ -989,7 +989,6 @@ function locateNearestZone() {
   }
 
   const button = $("#gpsLocateButton");
-
   if (!button) return;
 
   button.disabled = true;
@@ -1013,8 +1012,6 @@ function locateNearestZone() {
         return;
       }
 
-      // On enregistre uniquement l'identifiant de la zone.
-      // Les coordonnées GPS ne sont pas stockées.
       setMyZone(nearest, {
         select: true,
         notify: false,
@@ -1044,23 +1041,6 @@ function locateNearestZone() {
       maximumAge: 60000,
     },
   );
-}
-  const button = $("#gpsLocateButton");
-  button.disabled = true;
-  navigator.geolocation.getCurrentPosition((position) => {
-    const nearest = (state.geographyReady
-      ? geographicZoneAtPoint(position.coords.latitude, position.coords.longitude)
-      : null) || nearestGeographicZone(position.coords.latitude, position.coords.longitude);
-    button.disabled = false;
-    if (!nearest) return;
-    state.filters.governorate = nearest.governorate;
-    $("#governorateFilter").value = nearest.governorate;
-    selectZone(nearest.id, true);
-    toast(tr("nearestZone", { city: nearest.city }));
-  }, () => {
-    button.disabled = false;
-    toast(tr("geolocationDenied"));
-  }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 });
 }
 
 function renderFeed() {
