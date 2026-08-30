@@ -1834,6 +1834,35 @@ function serveStatic(request, response, pathname) {
   response.end(body);
 }
 
+function serveAdminPage(request, response) {
+  const session = currentSession(request);
+
+  if (!session.user) {
+    return error(response, 401, "Connexion administrateur requise.");
+  }
+
+  if (!isAdminUser(session.user)) {
+    return error(response, 403, "Accès réservé à l’administrateur.");
+  }
+
+  const adminPath = resolve(root, "admin.html");
+
+  if (!existsSync(adminPath) || !statSync(adminPath).isFile()) {
+    return error(response, 404, "Page d’administration introuvable.");
+  }
+
+  const body = readFileSync(adminPath);
+
+  response.writeHead(200, {
+    "Content-Type": "text/html; charset=utf-8",
+    "Content-Length": body.length,
+    "Cache-Control": "no-store",
+    ...securityHeaders(),
+  });
+
+  response.end(body);
+}
+
 let webSocketServer;
 
 function broadcast(payload) {
@@ -2331,11 +2360,13 @@ const server = createServer(async (request, response) => {
     if (!request.url || request.url.length > 8192) return error(response, 414, "Adresse de requête trop longue.");
     const url = new URL(request.url, "http://localhost");
     if (isCrossSiteMutation(request) && url.pathname !== "/api/whatsapp/webhook") return error(response, 403, "Requête externe refusée.");
-    if (url.pathname.startsWith("/api/")) {
-      await handleApi(request, response, url.pathname);
-    } else {
-      serveStatic(request, response, url.pathname);
-    }
+  if (url.pathname.startsWith("/api/")) {
+  await handleApi(request, response, url.pathname);
+} else if (url.pathname === "/admin" || url.pathname === "/admin/") {
+  serveAdminPage(request, response);
+} else {
+  serveStatic(request, response, url.pathname);
+}
   } catch (caught) {
     console.error(caught);
     if (caught.message === "PAYLOAD_TOO_LARGE") return error(response, 413, "Requête trop volumineuse.");
