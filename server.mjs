@@ -1443,58 +1443,148 @@ function publicVerification(record, lastReportTime, now = Date.now()) {
 function zoneSummaries(user = null) {
   const now = Date.now();
   refreshZoneVerifications(now);
-  const tallies = new Map(queries.voteTallies.all().map((row) => [row.zone_id, row]));
-  const myVotes = new Map(user ? queries.userVotes.all(user.id).map((row) => [row.zone_id, row.choice]) : []);
-  const verifications = new Map(queries.zoneVerifications.all().map((row) => [row.zone_id, row]));
-  const authoritativeReports = new Map(queries.latestAuthoritativeReports.all().map((row) => [row.zone_id, row]));
-  return queries.zoneSummary.all().map((row) => {
-    const votes = tallies.get(row.zone_id) || {};
+
+  const tallies = new Map(
+    queries.voteTallies.all().map((row) => [row.zone_id, row]),
+  );
+
+  const myVotes = new Map(
+    user
+      ? queries.userVotes.all(user.id).map((row) => [row.zone_id, row.choice])
+      : [],
+  );
+
+  const verifications = new Map(
+    queries.zoneVerifications.all().map((row) => [row.zone_id, row]),
+  );
+
+  const authoritativeReports = new Map(
+    queries.latestAuthoritativeReports.all().map((row) => [row.zone_id, row]),
+  );
+
+  return [...zoneDirectory.values()].map((zone) => {
+    const row = queries.oneZoneSummary.get(
+      zone.id,
+      zone.id,
+      zone.id,
+    );
+
+    const votes = tallies.get(zone.id) || {};
     const confirmations = Number(votes.confirmations || 0);
     const resolutions = Number(votes.resolutions || 0);
+
     const lastReportAt = sqliteUtcToIso(row.last_report_at);
-    const lastReportTime = lastReportAt ? Date.parse(lastReportAt) : NaN;
-    const communityResolved = confirmations + resolutions >= 2 && resolutions > confirmations;
-    const authoritativeReport = authoritativeReports.get(row.zone_id) || null;
-    const authoritativeAt = sqliteUtcToIso(authoritativeReport?.created_at);
-    let verification = authoritativeReport ? null : publicVerification(verifications.get(row.zone_id), lastReportTime, now);
-    let communityStatus = row.status === "resolved" || communityResolved ? "resolved" : "probable";
-    if (verification?.active) communityStatus = "probable";
-    else if (verification?.finalizedAt) communityStatus = verification.decisionStatus;
-    const lastDecisionTime = verification?.finalizedAt ? Date.parse(verification.finalizedAt) : NaN;
+    const lastReportTime = lastReportAt
+      ? Date.parse(lastReportAt)
+      : NaN;
+
+    const communityResolved =
+      confirmations + resolutions >= 2
+      && resolutions > confirmations;
+
+    const authoritativeReport =
+      authoritativeReports.get(zone.id) || null;
+
+    const authoritativeAt =
+      sqliteUtcToIso(authoritativeReport?.created_at);
+
+    let verification = authoritativeReport
+      ? null
+      : publicVerification(
+          verifications.get(zone.id),
+          lastReportTime,
+          now,
+        );
+
+    let communityStatus =
+      row.status === "resolved" || communityResolved
+        ? "resolved"
+        : "probable";
+
+    if (verification?.active) {
+      communityStatus = "probable";
+    } else if (verification?.finalizedAt) {
+      communityStatus = verification.decisionStatus;
+    }
+
+    const lastDecisionTime =
+      verification?.finalizedAt
+        ? Date.parse(verification.finalizedAt)
+        : NaN;
+
     const lastActivityTime = Math.max(
-      Number.isFinite(lastReportTime) ? lastReportTime : 0,
-      Number.isFinite(lastDecisionTime) ? lastDecisionTime : 0,
+      Number.isFinite(lastReportTime)
+        ? lastReportTime
+        : 0,
+      Number.isFinite(lastDecisionTime)
+        ? lastDecisionTime
+        : 0,
     );
-    let stale = communityStatus === "confirmed"
+
+    let stale =
+      communityStatus === "confirmed"
       && Number.isFinite(lastReportTime)
       && now - lastActivityTime >= zoneConfirmationFreshnessMs;
-    if (stale) communityStatus = "probable";
+
+    if (stale) {
+      communityStatus = "probable";
+    }
+
     if (authoritativeReport) {
-      communityStatus = authoritativeReport.status === "resolved" ? "resolved" : "confirmed";
+      communityStatus =
+        authoritativeReport.status === "resolved"
+          ? "resolved"
+          : "confirmed";
+
       verification = null;
       stale = false;
     }
-    const statistics = computeZoneStats(row.zone_id, 7);
+
+    const statistics = computeZoneStats(zone.id, 7);
+
     return {
-      id: row.zone_id,
-      reports: Number(row.reports),
-      trust: authoritativeReport ? 100 : Number(row.trust),
+      id: zone.id,
+
+      reports: Number(row.reports || 0),
+
+      trust: authoritativeReport
+        ? 100
+        : Number(row.trust || 0),
+
       status: communityStatus,
+
       authoritative: Boolean(authoritativeReport),
       authoritativeAt,
+
       confirmations,
       resolutions,
+
       lastReportAt,
-      confirmationExpiresAt: !authoritativeReport && row.status !== "resolved" && Number.isFinite(lastReportTime)
-        ? new Date(lastReportTime + zoneConfirmationFreshnessMs).toISOString()
-        : null,
+
+      confirmationExpiresAt:
+        !authoritativeReport
+        && row.status !== "resolved"
+        && Number.isFinite(lastReportTime)
+          ? new Date(
+              lastReportTime + zoneConfirmationFreshnessMs,
+            ).toISOString()
+          : null,
+
       stale,
+
       verification,
-      myVote: myVotes.get(row.zone_id) || null,
+
+      myVote: myVotes.get(zone.id) || null,
+
       periodDays: statistics.days,
       periodReports: statistics.totalReports,
-      history: statistics.daily.map((entry) => entry.reports),
+
+      history: statistics.daily.map(
+        (entry) => entry.reports,
+      ),
+
       hourly: statistics.hourly,
+
       peakHour: statistics.peakHour,
     };
   });
