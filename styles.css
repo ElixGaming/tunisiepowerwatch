@@ -1519,3 +1519,51 @@ body[data-audience="watch"] .public-metrics article { min-height: 112px; }
     flex: 1;
   }
 }
+.my-zone-box {
+  display: grid;
+  gap: 8px;
+  padding: 13px;
+  border: 1px solid #b8dde1;
+  border-radius: 8px;
+  background: #f6fcfd;
+}
+
+.my-zone-box > div:first-child {
+  display: grid;
+  gap: 3px;
+}
+
+.my-zone-box strong {
+  color: var(--teal);
+  font-size: 15px;
+}
+
+.my-zone-box span {
+  color: var(--ink);
+  font-weight: 750;
+}
+
+.my-zone-box small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.my-zone-box .inline-actions {
+  margin-top: 2px;
+}
+
+#gpsLocateButton {
+  min-height: 42px;
+  font-weight: 800;
+}
+
+@media (max-width: 600px) {
+  .my-zone-box .inline-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .my-zone-box .inline-actions button {
+    width: 100%;
+  }
+}

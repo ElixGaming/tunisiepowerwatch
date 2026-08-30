@@ -123,6 +123,7 @@ const state = {
   lowData: localStorage.getItem("tpw-low-data") === "true"
     || (!localStorage.getItem("tpw-low-data") && Boolean(navigator.connection?.saveData || /(^|-)2g$/.test(navigator.connection?.effectiveType || ""))),
   selectedZoneId: new URL(location.href).searchParams.get("zone") || localStorage.getItem("tpw-zone") || zones.find((zone) => zone.city === "Tunis centre")?.id || zones[0]?.id,
+  myZoneId: localStorage.getItem("tpw-my-zone") || null,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -888,12 +889,162 @@ function distanceBetween(lat1, lon1, lat2, lon2) {
   const value = Math.sin(deltaLat / 2) ** 2 + Math.cos(radians(lat1)) * Math.cos(radians(lat2)) * Math.sin(deltaLon / 2) ** 2;
   return 6371 * 2 * Math.atan2(Math.sqrt(value), Math.sqrt(1 - value));
 }
+function getMyZone() {
+  if (!state.myZoneId) return null;
+
+  const zone = zoneIndex.get(state.myZoneId);
+  if (zone) return zone;
+
+  // Compatibilité avec les anciens identifiants de zones.
+  const mappedId = state.legacyZoneAliases.get(state.myZoneId);
+  return mappedId ? zoneIndex.get(mappedId) || null : null;
+}
+
+function renderMyZone() {
+  const box = $("#myZoneBox");
+  const name = $("#myZoneName");
+  const details = $("#myZoneDetails");
+
+  if (!box || !name || !details) return;
+
+  const zone = getMyZone();
+
+  if (!zone) {
+    box.hidden = true;
+    return;
+  }
+
+  box.hidden = false;
+  name.textContent = zone.city;
+  details.textContent = [zone.delegation, zone.governorate]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+function setMyZone(zone, { select = true, notify = true } = {}) {
+  if (!zone) return false;
+
+  state.myZoneId = zone.id;
+  localStorage.setItem("tpw-my-zone", zone.id);
+
+  // Ma zone devient aussi la zone choisie pour les notifications.
+  const notificationSelect = $("#notificationZone");
+  if (notificationSelect && zoneIndex.has(zone.id)) {
+    notificationSelect.value = zone.id;
+    localStorage.setItem("tpw-notification-zone", zone.id);
+  }
+
+  if (select) {
+    state.filters.governorate = zone.governorate;
+
+    const governorateFilter = $("#governorateFilter");
+    if (governorateFilter) {
+      governorateFilter.value = zone.governorate;
+    }
+
+    selectZone(zone.id, true);
+  }
+
+  renderMyZone();
+
+  if (notify) {
+    toast(`⭐ Ma zone : ${zone.city}`);
+  }
+
+  return true;
+}
+
+function clearMyZone() {
+  state.myZoneId = null;
+  localStorage.removeItem("tpw-my-zone");
+
+  renderMyZone();
+
+  toast("Ma zone a été supprimée.");
+}
+
+function useMyZone() {
+  const zone = getMyZone();
+
+  if (!zone) {
+    toast("Aucune zone personnelle enregistrée.");
+    return;
+  }
+
+  state.filters.governorate = zone.governorate;
+
+  const governorateFilter = $("#governorateFilter");
+  if (governorateFilter) {
+    governorateFilter.value = zone.governorate;
+  }
+
+  selectZone(zone.id, true);
+  toast(`Zone affichée : ${zone.city}`);
+}
 
 function locateNearestZone() {
   if (!("geolocation" in navigator)) {
     toast(tr("geolocationDenied"));
     return;
   }
+
+  const button = $("#gpsLocateButton");
+
+  if (!button) return;
+
+  button.disabled = true;
+  button.textContent = "📍 Localisation…";
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const { latitude, longitude } = position.coords;
+
+      const nearest = (
+        state.geographyReady
+          ? geographicZoneAtPoint(latitude, longitude)
+          : null
+      ) || nearestGeographicZone(latitude, longitude);
+
+      button.disabled = false;
+      button.textContent = "📍 Détecter ma zone";
+
+      if (!nearest) {
+        toast("Impossible de déterminer votre zone.");
+        return;
+      }
+
+      // On enregistre uniquement l'identifiant de la zone.
+      // Les coordonnées GPS ne sont pas stockées.
+      setMyZone(nearest, {
+        select: true,
+        notify: false,
+      });
+
+      toast(`📍 Zone détectée : ${nearest.city}`);
+    },
+    (error) => {
+      button.disabled = false;
+      button.textContent = "📍 Détecter ma zone";
+
+      let message = tr("geolocationDenied");
+
+      if (error?.code === 1) {
+        message = "Autorisez la localisation pour détecter votre zone.";
+      } else if (error?.code === 2) {
+        message = "Position indisponible. Vérifiez votre GPS.";
+      } else if (error?.code === 3) {
+        message = "La localisation a pris trop de temps. Réessayez.";
+      }
+
+      toast(message);
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 12000,
+      maximumAge: 60000,
+    },
+  );
+}
   const button = $("#gpsLocateButton");
   button.disabled = true;
   navigator.geolocation.getCurrentPosition((position) => {
@@ -1274,12 +1425,17 @@ async function enableNotifications() {
         applicationServerKey: base64UrlToBytes(state.pushPublicKey),
       });
     }
-    const zoneId = $("#notificationZone").value;
+   const zoneId = state.myZoneId || $("#notificationZone").value;
     await api("/api/push/subscriptions", {
       method: "POST",
       body: JSON.stringify({ subscription: subscription.toJSON(), zoneId }),
     });
     localStorage.setItem("tpw-notification-zone", zoneId);
+    if (!state.myZoneId && zoneId) {
+  state.myZoneId = zoneId;
+  localStorage.setItem("tpw-my-zone", zoneId);
+  renderMyZone();
+}
     await updateNotificationControls();
     const zone = zoneIndex.get(zoneId);
     toast(tr("pushEnabled", { city: zone?.city || zoneId }));
@@ -1419,10 +1575,27 @@ function populateControls() {
     value: zone.id,
     label: `${zone.city}${zone.delegation ? ` · ${zone.delegation}` : ""} · ${zone.governorate}`,
   })));
-  const storedNotificationZone = localStorage.getItem("tpw-notification-zone");
-  $("#notificationZone").value = zoneIndex.has(storedNotificationZone)
-    ? storedNotificationZone
-    : state.legacyZoneAliases.get(storedNotificationZone) || state.selectedZoneId;
+const storedMyZone = localStorage.getItem("tpw-my-zone");
+
+if (storedMyZone && zoneIndex.has(storedMyZone)) {
+  state.myZoneId = storedMyZone;
+} else if (storedMyZone && state.legacyZoneAliases.has(storedMyZone)) {
+  state.myZoneId = state.legacyZoneAliases.get(storedMyZone);
+  localStorage.setItem("tpw-my-zone", state.myZoneId);
+} else {
+  state.myZoneId = null;
+  localStorage.removeItem("tpw-my-zone");
+}
+
+const storedNotificationZone = localStorage.getItem("tpw-notification-zone");
+
+$("#notificationZone").value = zoneIndex.has(storedNotificationZone)
+  ? storedNotificationZone
+  : state.legacyZoneAliases.get(storedNotificationZone)
+    || state.myZoneId
+    || state.selectedZoneId;
+
+renderMyZone();
   $("#lowDataToggle").checked = state.lowData;
 }
 
@@ -1799,6 +1972,17 @@ function bindEvents() {
     toast(`Zone localisée: ${zone.city} · ${zone.governorate}`);
   });
   $("#gpsLocateButton").addEventListener("click", locateNearestZone);
+  $("#useMyZoneButton").addEventListener("click", useMyZone);
+
+$("#clearMyZoneButton").addEventListener("click", () => {
+  clearMyZone();
+
+  // On remet les notifications sur la zone actuellement sélectionnée.
+  const notificationZone = $("#notificationZone");
+  if (notificationZone && state.selectedZoneId && zoneIndex.has(state.selectedZoneId)) {
+    notificationZone.value = state.selectedZoneId;
+  }
+});
   $("#confirmOutageButton").addEventListener("click", () => submitCommunityVote("outage"));
   $("#confirmResolvedButton").addEventListener("click", () => submitCommunityVote("resolved"));
   $("#shareZoneButton").addEventListener("click", shareSelectedZone);

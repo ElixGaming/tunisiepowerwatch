@@ -116,8 +116,30 @@
               <span data-i18n="geographicLocalZone">Zone locale (imada)</span>
               <select id="locateZone"></select>
             </label>
-            <button id="gpsLocateButton" class="ghost-button" type="button" data-i18n="useMyLocation">Utiliser ma position</button>
-            <button id="locateButton" class="primary-button" type="button">Afficher ma zone</button>
+            <button id="gpsLocateButton" class="primary-button" type="button" data-i18n="useMyLocation">
+  📍 Détecter ma zone
+</button>
+
+<div id="myZoneBox" class="my-zone-box" hidden>
+  <div>
+    <strong>⭐ Ma zone</strong>
+    <span id="myZoneName"></span>
+    <small id="myZoneDetails"></small>
+  </div>
+
+  <div class="inline-actions">
+    <button id="useMyZoneButton" class="ghost-button" type="button">
+      Afficher
+    </button>
+    <button id="clearMyZoneButton" class="ghost-button" type="button">
+      Modifier
+    </button>
+  </div>
+</div>
+
+<button id="locateButton" class="ghost-button" type="button">
+  Choisir manuellement
+</button>
           </div>
             <p class="participation-note">Les signalements affichés proviennent des membres de la communauté.</p>
         </aside>
