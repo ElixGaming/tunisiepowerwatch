@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="e6eccba0-a424-4ab5-8b40-0715812259fc"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="État des services de Tunisie Power Watch" />
+    <title>État du site · Tunisie Power Watch</title>
+    <link rel="icon" type="image/png" href="assets/tn-power-watch.png" />
+    <link rel="stylesheet" href="styles.css?v=17" />
+  </head>
+  <body>
+    <header class="privacy-header status-page-header">
+      <a class="brand privacy-brand" href="index.html">
+        <img class="brand-logo" src="assets/tn-power-watch.png" alt="Logo Tunisie Power Watch" />
+        <span data-i18n="statusReturnHome">Retour au site</span>
+      </a>
+      <label class="language-control">
+        <span>Langue</span>
+        <select id="languageSelect" aria-label="Langue">
+          <option value="fr">FR</option>
+          <option value="ar">AR</option>
+        </select>
+      </label>
+    </header>
+
+    <main class="status-page">
+      <p class="eyebrow privacy-eyebrow" data-i18n="statusEyebrow">Disponibilité des services</p>
+      <h1 data-i18n="statusTitle">État de Tunisie Power Watch</h1>
+      <p class="privacy-lead" data-i18n="statusIntro">Consultez le fonctionnement des services essentiels et des fonctions facultatives du site.</p>
+
+      <section id="overallStatus" class="overall-status status-checking" aria-live="polite">
+        <span class="status-indicator" aria-hidden="true"></span>
+        <div>
+          <strong id="overallStatusLabel" data-i18n="statusRefreshing">Vérification…</strong>
+          <p id="statusLastChecked"></p>
+          <p id="statusUptime"></p>
+        </div>
+        <button id="refreshStatusButton" class="primary-button" type="button" data-i18n="statusRefresh">Actualiser</button>
+      </section>
+
+      <div id="statusServices" class="status-services" aria-live="polite"></div>
+
+      <aside class="status-information">
+        <p data-i18n="statusAutoRefresh">Actualisation automatique toutes les 30 secondes.</p>
+        <p data-i18n="statusOptionalHelp">Une fonction facultative non configurée n’est pas considérée comme une panne du site.</p>
+      </aside>
+    </main>
+
+    <footer class="site-footer compact-footer">
+      <a href="index.html" data-i18n="statusReturnHome">Retour au site</a>
+      <a href="public.html" data-i18n="publicScreens">Écrans publics</a>
+      <a href="terms.html">Conditions générales d’utilisation</a>
+      <a href="legal.html">Mentions légales</a>
+      <a href="privacy.html">Confidentialité</a>
+      <a href="cookies.html">Cookies</a>
+    </footer>
+
+    <script src="i18n.js?v=16"></script>
+    <script src="status.js?v=3"></script>
+  </body>
+</html>

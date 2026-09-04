@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="e6eccba0-a424-4ab5-8b40-0715812259fc"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>QR codes par zone · Tunisie Power Watch</title>
+    <link rel="icon" type="image/png" href="assets/tn-power-watch.png" />
+    <link rel="stylesheet" href="styles.css?v=17" />
+  </head>
+  <body>
+    <header class="privacy-header qr-page-header">
+      <a class="brand privacy-brand" href="index.html">
+        <img class="brand-logo" src="assets/tn-power-watch.png" alt="Logo Tunisie Power Watch" />
+        <span data-i18n="qrReturnHome">Retour au site</span>
+      </a>
+      <label class="language-control no-print">
+        <span>Langue</span>
+        <select id="languageSelect" aria-label="Langue">
+          <option value="fr">FR</option>
+          <option value="ar">AR</option>
+        </select>
+      </label>
+    </header>
+
+    <main class="qr-directory-page">
+      <p class="eyebrow privacy-eyebrow" data-i18n="qrDirectoryEyebrow">Outils de terrain</p>
+      <h1 data-i18n="qrDirectoryTitle">QR codes par zone</h1>
+      <p class="privacy-lead" data-i18n="qrDirectoryIntro">Les QR codes suivent les 2 084 imadas du même découpage géographique que la carte.</p>
+      <p class="qr-safety-note" data-i18n="qrScanHelp">Le scan ouvre un formulaire prérempli. Aucun compte n’est requis ; l’utilisateur valide ALTCHA et confirme lui-même l’envoi.</p>
+
+      <div class="qr-toolbar no-print">
+        <div class="qr-filter-grid">
+          <label>
+            <span data-i18n="qrGovernorateFilter">Filtrer par gouvernorat</span>
+            <select id="qrGovernorateFilter"></select>
+          </label>
+          <label>
+            <span data-i18n="qrDelegationFilter">Filtrer par délégation</span>
+            <select id="qrDelegationFilter"></select>
+          </label>
+          <label>
+            <span data-i18n="qrSearchLabel">Rechercher une zone</span>
+            <input id="qrZoneSearch" type="search" data-i18n-placeholder="qrSearchPlaceholder" placeholder="Nom, délégation ou identifiant…" />
+          </label>
+        </div>
+        <button id="printQrCodesButton" class="primary-button" type="button" data-i18n="qrPrint" disabled>Imprimer les QR codes</button>
+      </div>
+
+      <p id="qrZoneCount" class="field-help" aria-live="polite"></p>
+      <p id="qrPrintHelp" class="field-help qr-print-help" data-i18n="qrPrintLimitHelp" hidden>Affinez la sélection à 200 zones maximum avant d’imprimer.</p>
+      <div id="qrDirectory" class="qr-directory"></div>
+      <button id="qrLoadMoreButton" class="ghost-button qr-load-more no-print" type="button" data-i18n="qrLoadMore" hidden>Afficher plus de zones</button>
+    </main>
+
+    <template id="qrZoneTemplate">
+      <article class="qr-zone-sheet">
+        <header>
+          <h2></h2>
+          <p></p>
+        </header>
+        <div class="qr-pair"></div>
+      </article>
+    </template>
+
+    <footer class="site-footer compact-footer no-print">
+      <a href="index.html" data-i18n="qrReturnHome">Retour au site</a>
+      <a href="public.html" data-i18n="publicScreens">Écrans publics</a>
+      <a href="status.html" data-i18n="statusPage">État du site</a>
+      <a href="terms.html">Conditions générales d’utilisation</a>
+      <a href="legal.html">Mentions légales</a>
+      <a href="privacy.html">Confidentialité</a>
+      <a href="cookies.html">Cookies</a>
+    </footer>
+
+    <script src="i18n.js?v=16"></script>
+    <script src="qr-codes.js?v=2"></script>
+  </body>
+</html>

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>Administration · Tunisie Power Watch</title>
+  <link rel="stylesheet" href="/admin.css">
+</head>
+
+<body>
+  <main class="admin-shell">
+
+    <header class="admin-header">
+      <div>
+        <p class="eyebrow">TUNISIE POWER WATCH</p>
+        <h1>Administration</h1>
+        <p id="adminIdentity">Vérification de la session…</p>
+      </div>
+
+      <div class="header-actions">
+        <button id="refreshButton" class="button secondary">
+          Actualiser
+        </button>
+
+        <button id="logoutButton" class="button danger">
+          Se déconnecter
+        </button>
+      </div>
+    </header>
+
+    <section id="loadingCard" class="card loading">
+      Vérification de vos droits administrateur…
+    </section>
+
+    <section id="deniedCard" class="card denied" hidden>
+      <h2>Accès refusé</h2>
+      <p>
+        Cette page est réservée aux administrateurs autorisés.
+      </p>
+      <a class="button secondary" href="/">
+        Retour au site
+      </a>
+    </section>
+
+    <div id="adminContent" hidden>
+
+      <section class="stats-grid">
+        <article class="stat-card">
+          <span>Signalements chargés</span>
+          <strong id="reportCount">0</strong>
+        </article>
+
+        <article class="stat-card">
+          <span>Alertes ouvertes</span>
+          <strong id="flagCount">0</strong>
+        </article>
+
+        <article class="stat-card">
+          <span>Signalements signalés</span>
+          <strong id="flaggedReportCount">0</strong>
+        </article>
+      </section>
+
+      <section class="card">
+        <div class="section-heading">
+          <div>
+            <h2>Modération</h2>
+            <p>
+              Les actions sont vérifiées côté serveur.
+            </p>
+          </div>
+
+          <span id="lastRefresh" class="muted">—</span>
+        </div>
+
+        <div id="message" class="message" hidden></div>
+
+        <div id="adminList" class="admin-list"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <script src="/admin.js" defer></script>
+</body>
+</html>
